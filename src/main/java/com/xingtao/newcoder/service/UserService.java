@@ -183,4 +183,8 @@ public class UserService implements CommunityConstant {
         }
         return map;
     }
+
+    public User findUserByName(String toName) {
+        return userMapper.selectByName(toName);
+    }
 }
