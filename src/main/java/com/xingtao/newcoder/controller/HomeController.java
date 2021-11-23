@@ -4,7 +4,9 @@ import com.xingtao.newcoder.entity.DiscussPost;
 import com.xingtao.newcoder.entity.Page;
 import com.xingtao.newcoder.entity.User;
 import com.xingtao.newcoder.service.DiscussPostService;
+import com.xingtao.newcoder.service.LikeService;
 import com.xingtao.newcoder.service.UserService;
+import com.xingtao.newcoder.utils.CommunityConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,13 +21,16 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-public class HomeController {
+public class HomeController implements CommunityConstant {
 
     @Autowired
     private DiscussPostService discussPostService;
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private LikeService likeService;
 
     @RequestMapping(path = "/index", method = RequestMethod.GET)
     //@ResponseBody
@@ -36,12 +41,17 @@ public class HomeController {
         page.setPath("/index");
         List<DiscussPost> list = discussPostService.findDiscussPosts(0, page.getOffset(),page.getLimit());
         List<Map<String, Object>> discussPosts = new ArrayList<>();
+
+
         if (list != null) {
             for (DiscussPost post : list) {
                 Map<String, Object> map = new HashMap<>();
                 map.put("post", post);
                 User user = userService.findUserById(post.getUserId());
                 map.put("user", user);
+
+                long likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_POST, post.getId());
+                map.put("likeCount",likeCount);
                 discussPosts.add(map);
             }
         }
