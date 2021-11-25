@@ -2,6 +2,9 @@ package com.xingtao.newcoder.controller;
 
 import com.google.code.kaptcha.Producer;
 import com.xingtao.newcoder.entity.Comment;
+import com.xingtao.newcoder.entity.DiscussPost;
+import com.xingtao.newcoder.entity.Event;
+import com.xingtao.newcoder.event.EventProducer;
 import com.xingtao.newcoder.service.CommentService;
 import com.xingtao.newcoder.service.DiscussPostService;
 import com.xingtao.newcoder.utils.CommunityConstant;
@@ -32,6 +35,8 @@ public class CommentController implements CommunityConstant {
     @Autowired
     private HostHolder hostHolder;
 
+    @Autowired
+    private EventProducer eventProducer;
 
     @Autowired
     private DiscussPostService discussPostService;
@@ -42,6 +47,23 @@ public class CommentController implements CommunityConstant {
         comment.setStatus(0);
         comment.setCreateTime(new Date());
         commentService.addComment(comment);
+
+        //触发评论事件
+        Event event = new Event()
+                .setTopic(TOPIC_COMMENT)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(comment.getEntityType())
+                .setEntityId(comment.getEntityId())
+                .setData("postId",discussPostId);
+
+          if(comment.getEntityType() == ENTITY_TYPE_POST){
+              DiscussPost target = discussPostService.findDiscussPostById(comment.getEntityId());
+              event.setEntityUserId(target.getUserId());
+          }else if(comment.getEntityType() == ENTITY_TYPE_COMMENT){
+              Comment target = commentService.findCommentById(comment.getEntityId());
+              event.setEntityUserId(target.getUserId());
+          }
+          eventProducer.fireEvent(event);
 
 //        // 触发评论事件
 //        Event event = new Event()

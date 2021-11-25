@@ -1,7 +1,9 @@
 package com.xingtao.newcoder.controller;
 
+import com.xingtao.newcoder.entity.Event;
 import com.xingtao.newcoder.entity.Page;
 import com.xingtao.newcoder.entity.User;
+import com.xingtao.newcoder.event.EventProducer;
 import com.xingtao.newcoder.service.FollowService;
 import com.xingtao.newcoder.service.UserService;
 import com.xingtao.newcoder.utils.CommunityConstant;
@@ -29,12 +31,22 @@ public class FollowController implements CommunityConstant {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private EventProducer eventProducer;
+
     @RequestMapping(path = "/follow", method = RequestMethod.POST)
     @ResponseBody
     public String follow(int entityType, int entityId) {
         User user = hostHolder.getUser();
 
         followService.follow(user.getId(), entityType, entityId);
+        Event event = new Event()
+                .setTopic(TOPIC_FOLLOW)
+                .setUserId(user.getId())
+                .setEntityType(entityType)
+                .setEntityId(entityId)
+                .setEntityUserId(entityId);
+        eventProducer.fireEvent(event);
         return CommunityUtil.getJSONString(0, "已关注!");
     }
 
