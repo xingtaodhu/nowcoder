@@ -1,9 +1,7 @@
 package com.xingtao.newcoder.controller;
 
-import com.xingtao.newcoder.entity.Comment;
-import com.xingtao.newcoder.entity.DiscussPost;
-import com.xingtao.newcoder.entity.Page;
-import com.xingtao.newcoder.entity.User;
+import com.xingtao.newcoder.entity.*;
+import com.xingtao.newcoder.event.EventProducer;
 import com.xingtao.newcoder.service.CommentService;
 import com.xingtao.newcoder.service.DiscussPostService;
 import com.xingtao.newcoder.service.LikeService;
@@ -12,6 +10,7 @@ import com.xingtao.newcoder.utils.CommunityConstant;
 import com.xingtao.newcoder.utils.CommunityUtil;
 import com.xingtao.newcoder.utils.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.config.KafkaListenerEndpointRegistrar;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,6 +39,9 @@ public class DiscussPostController implements CommunityConstant {
     @Autowired
     private CommentService commentService;
 
+    @Autowired
+    private EventProducer eventProducer;
+
     @RequestMapping(path = "/add", method = RequestMethod.POST)
     @ResponseBody
     public String addDiscussPost(String title, String content) {
@@ -53,6 +55,13 @@ public class DiscussPostController implements CommunityConstant {
         post.setContent(content);
         post.setCreateTime(new Date());
         discussPostService.addDiscussPost(post);
+
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(user.getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(post.getId());
+        eventProducer.fireEvent(event);
         return CommunityUtil.getJSONString(0, "发布成功!");
     }
 

@@ -43,6 +43,11 @@ public interface CommunityConstant {
     int ENTITY_TYPE_USER = 3;
 
     /**
+     * 主题: 发帖
+     */
+    String TOPIC_PUBLISH = "publish";
+
+    /**
      * 主题: 评论
      */
     String TOPIC_COMMENT = "comment";

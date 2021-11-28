@@ -65,32 +65,17 @@ public class CommentController implements CommunityConstant {
           }
           eventProducer.fireEvent(event);
 
-//        // 触发评论事件
-//        Event event = new Event()
-//                .setTopic(TOPIC_COMMENT)
-//                .setUserId(hostHolder.getUser().getId())
-//                .setEntityType(comment.getEntityType())
-//                .setEntityUserId(comment.getEntityId())
-//                .setData("postId", discussPostId);
 
-//        if (comment.getEntityType() == ENTITY_TYPE_COMMENT) {
-//            DiscussPost target = discussPostService.findDiscussPostById(comment.getEntityId());
-//            event.setEntityUserId(target.getUserId());
-//        } else if (comment.getEntityType() == ENTITY_TYPE_COMMENT) {
-//            Comment target = commentService.findCommentById(comment.getEntityId());
-//            event.setEntityUserId(target.getUserId());
-//        }
-//        eventProducer.fireEvent(event);
-//
-//        // 触发发帖事件，因为评论帖子时，帖子的评论数量就更改了，需要更新elasticsearch中的数据
-//        if(comment.getEntityType()==ENTITY_TYPE_POST){
-//            event=new Event()
-//                    .setTopic(TOPIC_PUBLISH)
-//                    .setUserId(hostHolder.getUser().getId())
-//                    .setEntityType(ENTITY_TYPE_POST)
-//                    .setEntityId(discussPostId);
-//            eventProducer.fireEvent(event);
-//        }
+
+        // 触发发帖事件，因为评论帖子时，帖子的评论数量就更改了，需要更新elasticsearch中的数据
+        if(comment.getEntityType()==ENTITY_TYPE_POST){
+            event=new Event()
+                    .setTopic(TOPIC_PUBLISH)
+                    .setUserId(hostHolder.getUser().getId())
+                    .setEntityType(ENTITY_TYPE_POST)
+                    .setEntityId(discussPostId);
+            eventProducer.fireEvent(event);
+        }
 
         return "redirect:/discuss/detail/" + discussPostId;
     }

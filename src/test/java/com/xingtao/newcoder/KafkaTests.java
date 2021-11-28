@@ -25,11 +25,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class KafkaTests {
 
     @Autowired
-    private KafkaProducer kafkaProducer;
+    private KafkaProducer  kafkaProducer;
+
 
     @Test
     public void testKafka() {
-        kafkaProducer.sendMessage("test", "你好");
+
+        kafkaProducer.sendMessage("publish", "你好");
         kafkaProducer.sendMessage("test", "在吗");
         kafkaProducer.sendMessage("test1","ooo");
 
@@ -48,16 +50,16 @@ class KafkaProducer {
     @Autowired
     private KafkaTemplate kafkaTemplate;
 
+
     public void sendMessage(String topic, String content) {
         kafkaTemplate.send(topic, content);
     }
 
 }
-
 @Component
 class KafkaConsumer {
 
-    @KafkaListener(topics = {"test"})
+    @KafkaListener(topics = {"publish"})
     public void handleMessage(ConsumerRecord record) {
         System.out.println(record.value());
     }
