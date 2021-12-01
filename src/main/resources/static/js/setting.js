@@ -4,13 +4,14 @@ $(function(){
 
 function upload() {
     $.ajax({
-        url: "http://upload-z1.qiniup.com",
+        url: "http://upload.qiniup.com",
         method: "post",
         processData: false,
         contentType: false,
         data: new FormData($("#uploadForm")[0]),
         success: function(data) {
             if(data && data.code == 0) {
+                console.log(data);
                 // 更新头像访问路径
                 $.post(
                     CONTEXT_PATH + "/user/header/url",

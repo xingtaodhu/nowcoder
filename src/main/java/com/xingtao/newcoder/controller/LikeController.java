@@ -7,7 +7,9 @@ import com.xingtao.newcoder.service.LikeService;
 import com.xingtao.newcoder.utils.CommunityConstant;
 import com.xingtao.newcoder.utils.CommunityUtil;
 import com.xingtao.newcoder.utils.HostHolder;
+import com.xingtao.newcoder.utils.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,6 +30,9 @@ public class LikeController implements CommunityConstant {
     @Autowired
     private EventProducer eventProducer;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     @RequestMapping(value = "/like",method = RequestMethod.POST)
     @ResponseBody
     public String like(int entityType,int entityId,int entityUserId,int postId){
@@ -47,6 +52,12 @@ public class LikeController implements CommunityConstant {
                     .setEntityUserId(entityUserId)
                     .setData("postId",postId);
             eventProducer.fireEvent(event);
+        }
+
+        if (entityType == ENTITY_TYPE_POST) {
+            // 计算帖子分数
+            String redisKey = RedisKeyUtil.getPostScoreKey();
+            redisTemplate.opsForSet().add(redisKey, postId);
         }
         //返回的结果
         Map<String, Object> map = new HashMap<>();
