@@ -1,6 +1,5 @@
 package com.xingtao.newcoder.service;
 
-import com.oracle.tools.packager.Log;
 import com.xingtao.newcoder.dao.LoginTicketMapper;
 import com.xingtao.newcoder.dao.UserMapper;
 import com.xingtao.newcoder.entity.LoginTicket;
